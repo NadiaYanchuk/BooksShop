@@ -1,0 +1,17 @@
+# Включение CORS
+Header set Access-Control-Allow-Origin "http://localhost:4200"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+Header set Access-Control-Allow-Credentials "true"
+
+# Обработка preflight запросов
+RewriteEngine On
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
+
+# Включение JSON error responses
+php_flag display_errors Off
+php_flag log_errors On
+
+# Charset
+AddDefaultCharset UTF-8

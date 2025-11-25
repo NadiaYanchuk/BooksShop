@@ -1,0 +1,947 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Librarius API",
+    "description": "API документация для книжного магазина Librarius",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Librarius Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Аутентификация и регистрация пользователей"
+    },
+    {
+      "name": "Products",
+      "description": "Публичные операции с продуктами"
+    },
+    {
+      "name": "Reviews",
+      "description": "Публичные операции с отзывами"
+    },
+    {
+      "name": "Admin - Products",
+      "description": "Управление продуктами (требуется авторизация)"
+    },
+    {
+      "name": "Admin - Reviews",
+      "description": "Управление отзывами (требуется авторизация)"
+    },
+    {
+      "name": "Admin - Users",
+      "description": "Управление пользователями (требуется авторизация)"
+    }
+  ],
+  "paths": {
+    "/api/register.php": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Регистрация нового пользователя",
+        "description": "Создание нового пользователя с проверкой Google reCAPTCHA v2",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "email", "password", "recaptcha"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "john_doe"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "SecurePass123"
+                  },
+                  "recaptcha": {
+                    "type": "string",
+                    "description": "Google reCAPTCHA v2 token",
+                    "example": "03AGdBq27..."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Пользователь успешно зарегистрирован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Пользователь успешно зарегистрирован"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации или reCAPTCHA не пройдена"
+          },
+          "409": {
+            "description": "Пользователь с таким email уже существует"
+          }
+        }
+      }
+    },
+    "/api/auth.php": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Вход в систему",
+        "description": "Аутентификация пользователя или администратора",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "john_doe"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "SecurePass123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешная аутентификация",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Вход успешно выполнен"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "abc123def456"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "john_doe"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@example.com"
+                        },
+                        "is_admin": {
+                          "type": "boolean",
+                          "example": false
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неверные учетные данные"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Authentication"],
+        "summary": "Выход из системы",
+        "description": "Завершение сеанса пользователя",
+        "responses": {
+          "200": {
+            "description": "Успешный выход",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Выход успешно выполнен"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Проверка статуса сеанса",
+        "description": "Получение информации о текущем пользователе",
+        "responses": {
+          "200": {
+            "description": "Информация о текущей сессии",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "authenticated": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "is_admin": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products.php": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Получение списка продуктов",
+        "description": "Получение всех продуктов, поиск или получение одного продукта",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID продукта для получения одного продукта",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Ключевое слово для поиска",
+            "schema": {
+              "type": "string",
+              "example": "JavaScript"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Фильтр по категории",
+            "schema": {
+              "type": "string",
+              "example": "Programming"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список продуктов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Продукт не найден"
+          }
+        }
+      }
+    },
+    "/api/reviews.php": {
+      "get": {
+        "tags": ["Reviews"],
+        "summary": "Получение отзывов",
+        "description": "Получение одобренных отзывов или отзывов для продукта",
+        "parameters": [
+          {
+            "name": "approved",
+            "in": "query",
+            "description": "Получить только одобренные отзывы",
+            "schema": {
+              "type": "string",
+              "enum": ["1"]
+            }
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "description": "ID продукта для фильтрации отзывов",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список отзывов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Review"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не указан обязательный параметр"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Reviews"],
+        "summary": "Создание нового отзыва",
+        "description": "Отправка отзыва на модерацию",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["product_id", "name", "email", "rating", "comment"],
+                "properties": {
+                  "product_id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Иван Петров"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "ivan@example.com"
+                  },
+                  "rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "example": 5
+                  },
+                  "comment": {
+                    "type": "string",
+                    "example": "Отличная книга!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Отзыв успешно создан"
+          },
+          "400": {
+            "description": "Не все обязательные поля заполнены"
+          }
+        }
+      }
+    },
+    "/api/admin/products.php": {
+      "get": {
+        "tags": ["Admin - Products"],
+        "summary": "Получение списка всех продуктов (админ)",
+        "description": "Получение всех продуктов с фильтрами или списка категорий",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "categories",
+            "in": "query",
+            "description": "Получить список всех категорий",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Фильтр по категории",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "description": "Фильтр по активности",
+            "schema": {
+              "type": "string",
+              "enum": ["0", "1"]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Поиск по названию",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список продуктов или категорий"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Admin - Products"],
+        "summary": "Создание нового продукта",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "price", "category"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "JavaScript: The Good Parts"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Детальное руководство по JavaScript"
+                  },
+                  "price": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 29.99
+                  },
+                  "category": {
+                    "type": "string",
+                    "example": "Programming"
+                  },
+                  "image_url": {
+                    "type": "string",
+                    "example": "https://example.com/book.jpg"
+                  },
+                  "stock": {
+                    "type": "integer",
+                    "example": 100
+                  },
+                  "is_active": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Продукт успешно создан"
+          },
+          "400": {
+            "description": "Не заполнены обязательные поля"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Admin - Products"],
+        "summary": "Обновление продукта",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "stock": {
+                    "type": "integer"
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Продукт успешно обновлен"
+          },
+          "400": {
+            "description": "Не указан ID продукта"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin - Products"],
+        "summary": "Удаление продукта",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "description": "ID продукта для удаления",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Продукт успешно удален"
+          },
+          "400": {
+            "description": "Не указан ID продукта"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      }
+    },
+    "/api/admin/reviews.php": {
+      "get": {
+        "tags": ["Admin - Reviews"],
+        "summary": "Получение всех отзывов (админ)",
+        "description": "Получение всех отзывов с фильтрами по статусу модерации",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "is_approved",
+            "in": "query",
+            "description": "Фильтр по статусу модерации",
+            "schema": {
+              "type": "string",
+              "enum": ["0", "1"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список всех отзывов"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Admin - Reviews"],
+        "summary": "Модерация отзыва",
+        "description": "Одобрение или отклонение отзыва",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["id", "is_approved"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "is_approved": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Отзыв успешно обновлен"
+          },
+          "400": {
+            "description": "Не указан ID отзыва"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin - Reviews"],
+        "summary": "Удаление отзыва",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "description": "ID отзыва для удаления",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Отзыв успешно удален"
+          },
+          "400": {
+            "description": "Не указан ID отзыва"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      }
+    },
+    "/api/admin/administrators.php": {
+      "get": {
+        "tags": ["Admin - Users"],
+        "summary": "Получение списка всех администраторов",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список администраторов"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Admin - Users"],
+        "summary": "Создание нового администратора",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "email", "password"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "admin_user"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "admin@librarius.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "AdminPass123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Администратор успешно создан"
+          },
+          "400": {
+            "description": "Не заполнены обязательные поля"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Admin - Users"],
+        "summary": "Обновление администратора",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Администратор успешно обновлен"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin - Users"],
+        "summary": "Удаление администратора",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "description": "ID администратора для удаления",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Администратор успешно удален"
+          },
+          "401": {
+            "description": "Не авторизован"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "JavaScript: The Good Parts"
+          },
+          "description": {
+            "type": "string",
+            "example": "Детальное руководство по JavaScript"
+          },
+          "authors": {
+            "type": "string",
+            "example": "Douglas Crockford"
+          },
+          "publisher": {
+            "type": "string",
+            "example": "O'Reilly Media"
+          },
+          "published_date": {
+            "type": "string",
+            "format": "date",
+            "example": "2008-05-01"
+          },
+          "page_count": {
+            "type": "integer",
+            "example": 176
+          },
+          "isbn": {
+            "type": "string",
+            "example": "978-0596517748"
+          },
+          "google_book_id": {
+            "type": "string",
+            "example": "PXa2bby0oQ0C"
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "example": 29.99
+          },
+          "category": {
+            "type": "string",
+            "example": "Programming"
+          },
+          "image_url": {
+            "type": "string",
+            "example": "https://example.com/book.jpg"
+          },
+          "stock": {
+            "type": "integer",
+            "example": 100
+          }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Иван Петров"
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "example": "Отличная книга, рекомендую!"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T10:30:00Z"
+          },
+          "product_name": {
+            "type": "string",
+            "example": "JavaScript: The Good Parts"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "sessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "PHPSESSID",
+        "description": "Session-based authentication using PHP sessions"
+      }
+    }
+  }
+}

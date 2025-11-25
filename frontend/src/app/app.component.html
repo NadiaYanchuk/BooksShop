@@ -1,0 +1,145 @@
+<div class="min-h-screen flex flex-col">
+    <nav class="bg-gradient-to-r from-blue-600 via-blue-700 to-cyan-600 shadow-2xl sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 backdrop-blur-sm p-2 rounded-xl">
+                        <img src="assets/icons/main.png" alt="Librarius Logo"
+                            class="w-10 h-10 object-contain brightness-0 invert">
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Librarius</h1>
+                        <p class="text-xs text-blue-100">Мир литературы для вас</p>
+                    </div>
+                </div>
+                <nav class="flex flex-wrap gap-2 md:gap-4">
+                    <a routerLink="/" routerLinkActive="bg-blue-800/50 shadow-lg"
+                        [routerLinkActiveOptions]="{exact: true}"
+                        class="px-4 py-2 rounded-lg text-white hover:bg-blue-700/30 transition-all duration-200 font-medium">
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-home"></i>
+                            Главная
+                        </span>
+                    </a>
+                    <a routerLink="/search" routerLinkActive="bg-blue-800/50 shadow-lg"
+                        class="px-4 py-2 rounded-lg text-white hover:bg-blue-700/30 transition-all duration-200 font-medium">
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-search"></i>
+                            Поиск
+                        </span>
+                    </a>
+                    <a *ngIf="!authService.isAuthenticated()" routerLink="/login"
+                        routerLinkActive="bg-blue-800/50 shadow-lg"
+                        class="px-4 py-2 rounded-lg text-white hover:bg-blue-700/30 transition-all duration-200 font-medium">
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Вход
+                        </span>
+                    </a>
+                    <a *ngIf="authService.isAuthenticated()" routerLink="/admin/dashboard"
+                        routerLinkActive="bg-blue-800/50 shadow-lg"
+                        class="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all duration-200 font-medium shadow-md">
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-tools"></i>
+                            Админ-панель
+                        </span>
+                    </a>
+                    <button *ngIf="authService.isAuthenticated()" (click)="logout()"
+                        class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all duration-200 font-medium shadow-md">
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Выход
+                        </span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow">
+        <router-outlet></router-outlet>
+    </main>
+
+    <footer *ngIf="showFooter" class="bg-gradient-to-b from-slate-800 via-slate-900 to-black text-white mt-auto">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-blue-600 p-2 rounded-lg">
+                            <img src="assets/icons/main.png" alt="Librarius Logo"
+                                class="w-8 h-8 object-contain brightness-0 invert">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">Librarius</h3>
+                            <p class="text-sm text-blue-300">Ваша библиотека</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed">
+                        Откройте для себя мир знаний и вдохновения. Широкий выбор книг различных жанров для любителей
+                        чтения.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <i class="fas fa-compass text-blue-400"></i>
+                        Навигация
+                    </h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>
+                            <a routerLink="/" class="hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <i class="fas fa-chevron-right text-xs"></i>
+                                Главная страница
+                            </a>
+                        </li>
+                        <li>
+                            <a routerLink="/search"
+                                class="hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <i class="fas fa-chevron-right text-xs"></i>
+                                Поиск книг
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <i class="fas fa-info-circle text-blue-400"></i>
+                        Информация
+                    </h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-clock text-blue-400"></i>
+                            Работаем круглосуточно
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-shipping-fast text-blue-400"></i>
+                            Быстрая доставка
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-shield-alt text-blue-400"></i>
+                            Безопасные покупки
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-700 pt-6">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-gray-400 text-sm">
+                    <p>&copy; 2025 Книжный Мир. Все права защищены.</p>
+                    <div class="flex gap-6">
+                        <a href="#" class="hover:text-blue-400 transition-colors">
+                            <i class="fas fa-book-reader"></i> О нас
+                        </a>
+                        <a href="#" class="hover:text-blue-400 transition-colors">
+                            <i class="fas fa-envelope"></i> Контакты
+                        </a>
+                        <a href="#" class="hover:text-blue-400 transition-colors">
+                            <i class="fas fa-question-circle"></i> Помощь
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>

@@ -1,0 +1,88 @@
+<div
+    class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-100 via-cyan-100 to-sky-100">
+    <div class="max-w-md w-full space-y-8 animate-slide-up">
+        <div class="text-center">
+            <div
+                class="mx-auto h-24 w-24 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl flex items-center justify-center shadow-2xl transform hover:rotate-6 transition-transform">
+                <i class="fas fa-book-reader text-5xl text-white"></i>
+            </div>
+            <h2
+                class="mt-6 text-4xl font-extrabold bg-gradient-to-r from-blue-700 to-cyan-600 bg-clip-text text-transparent">
+                Вход в систему
+            </h2>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-2xl p-8 space-y-6 border-2 border-blue-200">
+            <div *ngIf="error" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg animate-shake">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle text-2xl text-red-500 mr-3"></i>
+                    <span class="text-red-700 font-medium">{{ error }}</span>
+                </div>
+            </div>
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+                <div>
+                    <label for="username" class="block text-sm font-semibold text-blue-900 mb-2">
+                        Имя пользователя
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <input type="text" id="username"
+                            class="w-full pl-10 pr-4 py-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none bg-blue-50/30"
+                            formControlName="username" placeholder="Введите имя пользователя" autocomplete="username">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-semibold text-blue-900 mb-2">
+                        Пароль
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-key text-blue-600"></i>
+                        </div>
+                        <input type="password" id="password"
+                            class="w-full pl-10 pr-4 py-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none bg-blue-50/30"
+                            formControlName="password" placeholder="••••••••" autocomplete="current-password">
+                    </div>
+                </div>
+
+                <button type="submit" [disabled]="!loginForm.valid || loading"
+                    class="w-full py-4 bg-gradient-to-r from-blue-600 via-blue-700 to-cyan-600 text-white rounded-xl font-bold text-lg hover:from-blue-700 hover:via-blue-800 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]">
+                    <span *ngIf="!loading" class="flex items-center justify-center gap-2">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Войти в систему
+                    </span>
+                    <span *ngIf="loading" class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        Вход...
+                    </span>
+                </button>
+            </form>
+
+            <div class="relative">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white text-gray-500">или</span>
+                </div>
+            </div>
+
+            <div class="gap-4 text-center">
+                <a routerLink="/register"
+                    class="inline-flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors">
+                    Зарегистрироваться
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,166 @@
+<div
+    class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-100 via-cyan-100 to-sky-100">
+    <div class="max-w-md w-full space-y-8 animate-slide-up">
+        <div class="text-center">
+            <div
+                class="mx-auto h-24 w-24 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl flex items-center justify-center shadow-2xl transform hover:rotate-6 transition-transform">
+                <i class="fas fa-user-plus text-5xl text-white"></i>
+            </div>
+            <h2
+                class="mt-6 text-4xl font-extrabold bg-gradient-to-r from-blue-700 to-cyan-600 bg-clip-text text-transparent">
+                Регистрация
+            </h2>
+            <p class="mt-2 text-gray-600">Создайте новый аккаунт</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-2xl p-8 space-y-6 border-2 border-blue-200">
+            <div *ngIf="error" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg animate-shake">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle text-2xl text-red-500 mr-3"></i>
+                    <span class="text-red-700 font-medium">{{ error }}</span>
+                </div>
+            </div>
+
+            <div *ngIf="success" class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-2xl text-green-500 mr-3"></i>
+                    <span class="text-green-700 font-medium">{{ success }}</span>
+                </div>
+            </div>
+
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+                <div>
+                    <label for="username" class="block text-sm font-semibold text-blue-900 mb-2">
+                        Имя пользователя
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <input type="text" id="username" formControlName="username"
+                            class="w-full pl-10 pr-4 py-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none bg-blue-50/30"
+                            placeholder="Только латиница, цифры и _"
+                            [class.border-red-500]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+                    </div>
+                    <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+                        class="mt-1">
+                        <span class="text-red-500 text-xs" *ngIf="registerForm.get('username')?.errors?.['required']">
+                            Обязательное поле
+                        </span>
+                        <span class="text-red-500 text-xs" *ngIf="registerForm.get('username')?.errors?.['minlength']">
+                            Минимум 3 символа
+                        </span>
+                        <span class="text-red-500 text-xs" *ngIf="registerForm.get('username')?.errors?.['pattern']">
+                            Только латинские буквы, цифры и _
+                        </span>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-semibold text-blue-900 mb-2">
+                        Email
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-envelope text-blue-600"></i>
+                        </div>
+                        <input type="email" id="email" formControlName="email"
+                            class="w-full pl-10 pr-4 py-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none bg-blue-50/30"
+                            placeholder="your@email.com"
+                            [class.border-red-500]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+                    </div>
+                    <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="mt-1">
+                        <span class="text-red-500 text-xs" *ngIf="registerForm.get('email')?.errors?.['required']">
+                            Обязательное поле
+                        </span>
+                        <span class="text-red-500 text-xs" *ngIf="registerForm.get('email')?.errors?.['email']">
+                            Неверный формат email
+                        </span>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-semibold text-blue-900 mb-2">
+                        Пароль
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-key text-blue-600"></i>
+                        </div>
+                        <input type="password" id="password" formControlName="password"
+                            class="w-full pl-10 pr-4 py-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none bg-blue-50/30"
+                            placeholder="Минимум 6 символов"
+                            [class.border-red-500]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+                    </div>
+                    <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+                        class="mt-1">
+                        <span class="text-red-500 text-xs" *ngIf="registerForm.get('password')?.errors?.['required']">
+                            Обязательное поле
+                        </span>
+                        <span class="text-red-500 text-xs" *ngIf="registerForm.get('password')?.errors?.['minlength']">
+                            Минимум 6 символов
+                        </span>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="confirmPassword" class="block text-sm font-semibold text-blue-900 mb-2">
+                        Подтверждение пароля
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-blue-600"></i>
+                        </div>
+                        <input type="password" id="confirmPassword" formControlName="confirmPassword"
+                            class="w-full pl-10 pr-4 py-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none bg-blue-50/30"
+                            placeholder="Повторите пароль"
+                            [class.border-red-500]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
+                    </div>
+                    <div *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched"
+                        class="mt-1">
+                        <span class="text-red-500 text-xs"
+                            *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">
+                            Обязательное поле
+                        </span>
+                        <span class="text-red-500 text-xs"
+                            *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch']">
+                            Пароли не совпадают
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Google reCAPTCHA v2 -->
+                <div>
+                    <label class="block text-sm font-semibold text-blue-900 mb-2">
+                        Проверка безопасности
+                    </label>
+                    <div id="recaptcha-container" class="flex justify-center"></div>
+                    <div *ngIf="recaptchaError" class="mt-2">
+                        <span class="text-red-500 text-xs">{{ recaptchaError }}</span>
+                    </div>
+                </div>
+
+                <button type="submit" [disabled]="!registerForm.valid || loading"
+                    class="w-full py-4 bg-gradient-to-r from-blue-600 via-blue-700 to-cyan-600 text-white rounded-xl font-bold text-lg hover:from-blue-700 hover:via-blue-800 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]">
+                    <span *ngIf="!loading" class="flex items-center justify-center gap-2">
+                        <i class="fas fa-user-plus"></i>
+                        Зарегистрироваться
+                    </span>
+                    <span *ngIf="loading" class="flex items-center justify-center gap-2">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Регистрация...
+                    </span>
+                </button>
+            </form>
+
+            <div class="text-center pt-4 border-t border-blue-100">
+                <p class="text-gray-600">
+                    Уже есть аккаунт?
+                    <a routerLink="/login" class="font-bold text-blue-600 hover:text-cyan-600 transition-colors">
+                        Войти
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
