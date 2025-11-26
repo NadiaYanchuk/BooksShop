@@ -48,6 +48,7 @@ switch($method) {
                 "id" => $row['id'],
                 "name" => $row['name'],
                 "description" => $row['description'],
+                "authors" => $row['authors'] ?? '',
                 "price" => floatval($row['price']),
                 "category" => $row['category'],
                 "image_url" => $row['image_url'],
@@ -77,7 +78,7 @@ switch($method) {
             $product->description = $data->description ?? '';
             $product->price = $data->price;
             $product->category = $data->category;
-            $product->image_url = $data->image_url ?? '';
+            $product->image_url = !empty($data->image_url) ? $data->image_url : 'assets/no-image.png';
             $product->stock = $data->stock ?? 0;
             $product->is_active = $data->is_active ?? true;
 
@@ -104,7 +105,7 @@ switch($method) {
             $product->description = $data->description ?? '';
             $product->price = $data->price;
             $product->category = $data->category;
-            $product->image_url = $data->image_url ?? '';
+            $product->image_url = !empty($data->image_url) ? $data->image_url : 'assets/no-image.png';
             $product->stock = $data->stock ?? 0;
             $product->is_active = $data->is_active ?? true;
 

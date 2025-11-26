@@ -94,7 +94,8 @@
             <a *ngFor="let book of paginatedBooks" [routerLink]="['/product', book.id]"
                 class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl hover:scale-[1.02] transition-all group cursor-pointer block">
                 <div class="relative h-72 bg-gray-100 overflow-hidden">
-                    <img [src]="book.image_url || 'assets/no-image.jpg'" [alt]="book.name"
+                    <img [src]="book.image_url || 'assets/no-image.png'" [alt]="book.name"
+                        (error)="onImageError($event)"
                         class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 p-2">
                     <div class="absolute top-3 left-3">
                         <span

@@ -21,6 +21,31 @@ export class ProductService {
         return this.http.get<Product>(`${this.apiUrl}/products.php?id=${id}`);
     }
 
+    // Получить продукты с фильтрами
+    getProductsWithFilters(filters: {
+        keyword?: string,
+        category?: string,
+        minPrice?: number | null,
+        maxPrice?: number | null
+    }): Observable<Product[]> {
+        let params = new HttpParams();
+
+        if (filters.keyword && filters.keyword.trim() !== '') {
+            params = params.set('keyword', filters.keyword.trim());
+        }
+        if (filters.category && filters.category !== '') {
+            params = params.set('category', filters.category);
+        }
+        if (filters.minPrice !== null && filters.minPrice !== undefined) {
+            params = params.set('minPrice', filters.minPrice.toString());
+        }
+        if (filters.maxPrice !== null && filters.maxPrice !== undefined) {
+            params = params.set('maxPrice', filters.maxPrice.toString());
+        }
+
+        return this.http.get<Product[]>(`${this.apiUrl}/products.php`, { params });
+    }
+
     searchProducts(keyword: string, category: string = ''): Observable<Product[]> {
         let params = new HttpParams().set('search', keyword);
         if (category) {

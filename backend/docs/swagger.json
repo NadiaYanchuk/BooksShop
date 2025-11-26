@@ -242,8 +242,8 @@
     "/api/products.php": {
       "get": {
         "tags": ["Products"],
-        "summary": "Получение списка продуктов",
-        "description": "Получение всех продуктов, поиск или получение одного продукта",
+        "summary": "Получение списка продуктов с фильтрацией",
+        "description": "Получение всех продуктов с возможностью фильтрации по ключевому слову, категории и цене, или получение одного продукта по ID",
         "parameters": [
           {
             "name": "id",
@@ -255,9 +255,9 @@
             }
           },
           {
-            "name": "search",
+            "name": "keyword",
             "in": "query",
-            "description": "Ключевое слово для поиска",
+            "description": "Ключевое слово для поиска по названию, описанию или авторам",
             "schema": {
               "type": "string",
               "example": "JavaScript"
@@ -271,18 +271,45 @@
               "type": "string",
               "example": "Programming"
             }
+          },
+          {
+            "name": "minPrice",
+            "in": "query",
+            "description": "Минимальная цена продукта",
+            "schema": {
+              "type": "number",
+              "format": "float",
+              "example": 10.00
+            }
+          },
+          {
+            "name": "maxPrice",
+            "in": "query",
+            "description": "Максимальная цена продукта",
+            "schema": {
+              "type": "number",
+              "format": "float",
+              "example": 50.00
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Список продуктов",
+            "description": "Список продуктов или один продукт",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Product"
-                  }
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Product"
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  ]
                 }
               }
             }
@@ -426,9 +453,10 @@
           {
             "name": "search",
             "in": "query",
-            "description": "Поиск по названию",
+            "description": "Поиск по названию, описанию, авторам или ISBN",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "JavaScript"
             }
           }
         ],

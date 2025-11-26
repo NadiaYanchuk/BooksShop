@@ -36,7 +36,7 @@
                             Вход
                         </span>
                     </a>
-                    <a *ngIf="authService.isAuthenticated()" routerLink="/admin/dashboard"
+                    <a *ngIf="authService.isAuthenticated() && authService.isAdmin()" routerLink="/admin/dashboard"
                         routerLinkActive="bg-blue-800/50 shadow-lg"
                         class="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 transition-all duration-200 font-medium shadow-md">
                         <span class="flex items-center gap-2">

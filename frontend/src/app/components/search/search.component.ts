@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/models';
 
@@ -29,27 +30,36 @@ export class SearchComponent implements OnInit {
     totalPages = 1;
 
     constructor(
-        private productService: ProductService
+        private productService: ProductService,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit(): void {
-        this.loadInitialBooks();
+        this.route.queryParams.subscribe(params => {
+            if (params['search']) {
+                this.filters.keyword = params['search'];
+            }
+            this.loadInitialBooks();
+        });
     }
 
     loadInitialBooks(): void {
         this.loading = true;
 
-        // Загружаем все книги из нашей БД
         this.productService.getProducts().subscribe({
             next: (products) => {
                 this.allBooks = products;
-                this.filteredBooks = [...this.allBooks];
 
-                // Получаем уникальные категории
                 const categoriesSet = new Set(products.map(p => p.category));
                 this.categories = Array.from(categoriesSet).sort();
 
-                this.updatePagination();
+                if (this.filters.keyword) {
+                    this.applyFilters();
+                } else {
+                    this.filteredBooks = [...this.allBooks];
+                    this.updatePagination();
+                }
+
                 this.loading = false;
             },
             error: (error) => {
@@ -61,38 +71,21 @@ export class SearchComponent implements OnInit {
     }
 
     applyFilters(): void {
-        this.filteredBooks = this.allBooks.filter(book => {
-            // Поиск по ключевому слову
-            if (this.filters.keyword && this.filters.keyword.trim() !== '') {
-                const keyword = this.filters.keyword.toLowerCase();
-                const matchTitle = book.name.toLowerCase().includes(keyword);
-                const matchAuthors = book.authors ? book.authors.toLowerCase().includes(keyword) : false;
-                const matchDesc = book.description.toLowerCase().includes(keyword);
-                if (!matchTitle && !matchAuthors && !matchDesc) return false;
-            }
+        this.loading = true;
 
-            // Фильтр по категории
-            if (this.filters.category && this.filters.category !== '') {
-                if (book.category !== this.filters.category) {
-                    return false;
-                }
+        this.productService.getProductsWithFilters(this.filters).subscribe({
+            next: (products) => {
+                this.filteredBooks = products;
+                this.currentPage = 1; // Сбрасываем на первую страницу
+                this.updatePagination();
+                this.loading = false;
+            },
+            error: (error) => {
+                console.error('Ошибка фильтрации:', error);
+                this.loading = false;
+                alert('Не удалось применить фильтры. Проверьте соединение с сервером.');
             }
-
-            // Фильтр по минимальной цене
-            if (this.filters.minPrice !== null && this.filters.minPrice !== undefined) {
-                if (book.price < this.filters.minPrice) return false;
-            }
-
-            // Фильтр по максимальной цене
-            if (this.filters.maxPrice !== null && this.filters.maxPrice !== undefined) {
-                if (book.price > this.filters.maxPrice) return false;
-            }
-
-            return true;
         });
-
-        this.currentPage = 1; // Сбрасываем на первую страницу
-        this.updatePagination();
     }
 
     updatePagination(): void {
@@ -133,12 +126,16 @@ export class SearchComponent implements OnInit {
             minPrice: null,
             maxPrice: null
         };
-        this.filteredBooks = [...this.allBooks];
         this.currentPage = 1;
-        this.updatePagination();
+        this.applyFilters();
     }
 
     toggleFilters(): void {
         this.filtersVisible = !this.filtersVisible;
+    }
+
+    onImageError(event: Event): void {
+        const img = event.target as HTMLImageElement;
+        img.src = 'assets/no-image.png';
     }
 }

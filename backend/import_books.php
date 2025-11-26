@@ -16,16 +16,18 @@ if (!$conn) {
 
 // Категории для загрузки книг
 $categories = [
-    'Fiction' => 5,
-    'Mystery' => 5,
-    'Romance' => 5,
-    'SciFi' => 5,
-    'Fantasy' => 5,
-    'Thriller' => 5,
+    'Fiction' => 10,
+    'Mystery' => 10,
+    'Romance' => 10,
+    'Science Fiction' => 10,
+    'Fantasy' => 10,
+    'Thriller' => 10,
     'Horror' => 5,
     'Adventure' => 5,
     'History' => 5,
-    'Biography' => 5
+    'Biography' => 5,
+    'Programming' => 10,
+    'Business' => 10
 ];
 
 $totalImported = 0;

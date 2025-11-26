@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { BooksService } from '../../services/books.service';
+import { ProductService } from '../../services/product.service';
 import { AuthService } from '../../services/auth.service';
 import { ReviewService } from '../../services/review.service';
-import { GoogleBook, BookSection, Review } from '../../models/models';
+import { Product, Review } from '../../models/models';
 
 @Component({
     selector: 'app-home',
@@ -10,24 +10,33 @@ import { GoogleBook, BookSection, Review } from '../../models/models';
     styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-    popularBooks: BookSection = { title: 'Популярные книги', books: [], loading: true };
-    newBooks: BookSection = { title: 'Новинки', books: [], loading: true };
+    popularBooks: Product[] = [];
+    newBooks: Product[] = [];
+    recommendedBooks: Product[] = [];
+    popularLoading = true;
+    newLoading = true;
+    recommendedLoading = true;
     reviews: Review[] = [];
     reviewsLoading = true;
 
     constructor(
-        private booksService: BooksService,
+        private productService: ProductService,
         public authService: AuthService,
         private reviewService: ReviewService
     ) { }
 
     ngOnInit(): void {
-        // Загружаем публичный контент для всех пользователей
         this.loadPopularBooks();
         this.loadNewBooks();
         this.loadReviews();
-    }
 
+        // Рекомендации только для авторизованных пользователей
+        if (this.authService.isAuthenticated()) {
+            this.loadRecommendedBooks();
+        } else {
+            this.recommendedLoading = false;
+        }
+    }
     loadReviews(): void {
         this.reviewsLoading = true;
         this.reviewService.getApprovedReviews().subscribe({
@@ -42,45 +51,57 @@ export class HomeComponent implements OnInit {
         });
     }
 
+    loadRecommendedBooks(): void {
+        this.recommendedLoading = true;
+        this.productService.getProducts().subscribe({
+            next: (products) => {
+                // Берём случайные 3 книги
+                const shuffled = [...products].sort(() => 0.5 - Math.random());
+                this.recommendedBooks = shuffled.slice(0, 3);
+                this.recommendedLoading = false;
+            },
+            error: (err) => {
+                console.error('Ошибка загрузки рекомендаций:', err);
+                this.recommendedLoading = false;
+            }
+        });
+    }
+
     loadPopularBooks(): void {
-        this.popularBooks.loading = true;
-        this.booksService.getPopularBooks().subscribe({
-            next: (books) => {
-                this.popularBooks.books = books;
-                this.popularBooks.loading = false;
+        this.popularLoading = true;
+        this.productService.getProducts().subscribe({
+            next: (products) => {
+                // Берём первые 12 книг как популярные
+                this.popularBooks = products.slice(0, 12);
+                this.popularLoading = false;
             },
             error: (err) => {
                 console.error('Ошибка загрузки популярных книг:', err);
-                this.popularBooks.loading = false;
+                this.popularLoading = false;
             }
         });
     }
 
     loadNewBooks(): void {
-        this.newBooks.loading = true;
-        this.booksService.getNewBooks().subscribe({
-            next: (books) => {
-                this.newBooks.books = books;
-                this.newBooks.loading = false;
+        this.newLoading = true;
+        this.productService.getProducts().subscribe({
+            next: (products) => {
+                // Берём последние 12 книг как новинки (сортировка по дате создания)
+                const sorted = [...products].sort((a, b) => {
+                    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+                });
+                this.newBooks = sorted.slice(0, 12);
+                this.newLoading = false;
             },
             error: (err) => {
                 console.error('Ошибка загрузки новых книг:', err);
-                this.newBooks.loading = false;
+                this.newLoading = false;
             }
         });
     }
 
-    getBookImage(book: GoogleBook): string {
-        return book.volumeInfo.imageLinks?.thumbnail ||
-            book.volumeInfo.imageLinks?.smallThumbnail ||
-            'https://via.placeholder.com/128x196?text=No+Image';
-    }
-
-    getBookAuthors(book: GoogleBook): string {
-        return book.volumeInfo.authors?.join(', ') || 'Автор неизвестен';
-    }
-
-    getBookPrice(book: GoogleBook): number {
-        return 10;
+    onImageError(event: Event): void {
+        const img = event.target as HTMLImageElement;
+        img.src = 'assets/no-image.png';
     }
 }
