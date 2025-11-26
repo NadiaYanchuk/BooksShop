@@ -5,6 +5,10 @@
 ```bash
 mysql -u root -p < database/schema.sql
 ```
+phpMyAdmin: 
+```bash
+cd /tmp/phpMyAdmin-5.2.1-all-languages && php -S localhost:8080
+```
 Открыть: **http://localhost:8080**
 
 ### Backend
